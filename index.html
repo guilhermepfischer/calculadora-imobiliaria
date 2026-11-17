@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#142b4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Comissão Imob.">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Calculadora Imobiliária</title>
+<style>
+:root{--navy:#142b4a;--blue:#24558a;--bg:#f3f6fa;--green:#16794b;--red:#b54747;--muted:#64748b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172334;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
+header{background:var(--navy);color:white;margin:0 -16px 18px;padding:25px 20px 23px;border-radius:0 0 22px 22px}
+header .eyebrow{font-size:12px;letter-spacing:1.3px;opacity:.8;font-weight:700}h1{font-size:23px;margin:7px 0 4px}header p{margin:0;color:#d7e3f1;font-size:13px}
+main{max-width:560px;margin:auto}.card{background:white;border-radius:17px;padding:17px;margin:13px 0;box-shadow:0 4px 18px #142b4a0c}
+h2{font-size:15px;margin:0 0 14px;color:var(--navy)}
+label{display:block;font-size:12px;font-weight:700;color:#536174;margin:12px 0 6px}
+input,select{width:100%;height:48px;border:1px solid #d8e0e9;border-radius:11px;padding:0 12px;font-size:17px;color:#172334;background:#fff;outline:none}
+input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #24558a18}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.result{background:var(--navy);color:white;border-radius:17px;padding:19px;margin:14px 0}
+.result small{color:#c9d8e8;font-weight:600}.amount{font-size:30px;font-weight:800;letter-spacing:-.7px;margin:5px 0 3px}
+.margin{font-size:13px;color:#c9d8e8}
+.line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #edf0f4;font-size:14px}.line:last-child{border:0}.line strong{font-variant-numeric:tabular-nums}
+.negative{color:var(--red)}.positive{color:var(--green)}
+.note{font-size:11px;line-height:1.5;color:var(--muted);padding:0 3px 20px}
+button{border:0;border-radius:11px;background:#e9eff6;color:var(--navy);font-weight:700;padding:12px 14px;font-size:13px;width:100%;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:right;padding:10px 5px;border-bottom:1px solid #edf0f4}th:first-child,td:first-child{text-align:left}th{color:#617087}
+@media(min-width:520px){body{padding-top:18px}header{border-radius:22px;margin:0 0 18px}}
+</style>
+</head>
+<body>
+<header><div class="eyebrow">FERRAMENTA PARTICULAR</div><h1>Calculadora de comissão</h1><p>Simule quanto sobra para a imobiliária em cada venda.</p></header>
+<main>
+<section class="card">
+<h2>Dados da venda</h2>
+<label for="valor">Valor do imóvel (R$)</label>
+<input id="valor" type="number" inputmode="decimal" min="0" step="1000" value="600000">
+<div class="grid">
+<div><label for="tipo">Tipo de imóvel</label><select id="tipo"><option value="4">Na planta — 4%</option><option value="6">Pronto — 6%</option><option value="custom">Personalizado</option></select></div>
+<div><label for="comissao">Comissão da imobiliária (%)</label><input id="comissao" type="number" inputmode="decimal" min="0" step=".1" value="4"></div>
+</div>
+<div class="grid">
+<div><label for="corretor">Comissão corretor (%)</label><select id="corretor"><option value="1.4">1,4%</option><option value="2">2%</option><option value="custom">Personalizado</option></select></div>
+<div><label for="corretorCustom">Percentual personalizado</label><input id="corretorCustom" type="number" inputmode="decimal" min="0" step=".1" value="1.4"></div>
+</div>
+<label for="imposto">Imposto sobre a comissão recebida (%)</label>
+<input id="imposto" type="number" inputmode="decimal" min="0" step=".1" value="6">
+</section>
+<section class="result">
+<small>SOBRA PARA A IMOBILIÁRIA</small>
+<div class="amount" id="sobra">R$ 10.560,00</div>
+<div class="margin" id="margem">44,00% da comissão recebida</div>
+</section>
+<section class="card">
+<h2>Detalhamento da operação</h2>
+<div class="line"><span>Comissão bruta da imobiliária</span><strong id="bruto">R$ 24.000,00</strong></div>
+<div class="line"><span>Imposto estimado</span><strong class="negative" id="tributo">− R$ 1.440,00</strong></div>
+<div class="line"><span>Comissão do corretor</span><strong class="negative" id="pago">− R$ 12.000,00</strong></div>
+<div class="line"><span>Valor da venda</span><strong id="venda">R$ 600.000,00</strong></div>
+<button id="comparar" type="button">Ver comparativo dos 4 cenários</button>
+</section>
+<section class="card" id="comparativo" hidden>
+<h2>Comparativo — valor atual do imóvel</h2>
+<table><thead><tr><th>Cenário</th><th>Corretor</th><th>Sobra</th></tr></thead><tbody id="cenarios"></tbody></table>
+</section>
+<p class="note">A sobra é uma margem antes de despesas fixas, marketing, equipe e demais custos operacionais — não representa necessariamente o lucro líquido. O imposto de 6% é uma estimativa informada por você; confirme a alíquota efetiva com a contabilidade.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const brl=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const pct=n=>n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
+function values(){
+ const v=Math.max(0,Number($('valor').value)||0);
+ const c=Math.max(0,Number($('comissao').value)||0);
+ const i=Math.max(0,Number($('imposto').value)||0);
+ const r=$('corretor').value==='custom'?Math.max(0,Number($('corretorCustom').value)||0):Number($('corretor').value);
+ const bruto=v*c/100, tributo=bruto*i/100, pago=v*r/100, sobra=bruto-tributo-pago;
+ return {v,c,i,r,bruto,tributo,pago,sobra};
+}
+function render(){
+ const x=values();
+ $('bruto').textContent=brl(x.bruto);$('tributo').textContent='− '+brl(x.tributo);$('pago').textContent='− '+brl(x.pago);$('venda').textContent=brl(x.v);
+ $('sobra').textContent=brl(x.sobra);$('sobra').style.color=x.sobra<0?'#ffb5b5':'white';
+ $('margem').textContent=(x.bruto?pct(x.sobra/x.bruto*100):'0,00%')+' da comissão recebida';
+}
+function compare(){
+ const x=values(), rows=[];
+ [4,6].forEach(c=>[1.4,2].forEach(r=>{
+  const gross=x.v*c/100, tax=gross*x.i/100, broker=x.v*r/100, left=gross-tax-broker;
+  rows.push(`<tr><td>${c===4?'Na planta':'Pronto'} (${c}%)</td><td>${pct(r)}</td><td>${brl(left)}</td></tr>`);
+ }));
+ $('cenarios').innerHTML=rows.join('');$('comparativo').hidden=!$('comparativo').hidden;
+}
+$('tipo').addEventListener('change',()=>{if($('tipo').value!=='custom')$('comissao').value=$('tipo').value;render()});
+$('corretor').addEventListener('change',()=>{$('corretorCustom').disabled=$('corretor').value!=='custom';render()});
+['valor','comissao','corretorCustom','imposto'].forEach(id=>$(id).addEventListener('input',render));
+$('comparar').addEventListener('click',compare);
+$('corretorCustom').disabled=true;
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+render();
+</script>
+</body></html>
